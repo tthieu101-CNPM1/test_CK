@@ -23,13 +23,13 @@ jobs:
     - name: Cấp quyền không gian làm việc
       run: chmod 777 $(pwd)
 
-    - name: Quét Baseline và tạo tệp gen.conf
+    - name: Quét Baseline với tệp zap.conf
       run: |
         docker run --network host -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
         -t http://localhost:3000 \
         -r zap-report.html \
         -J zap-report.json \
-        -g gen.conf
+        -c zap.conf
       continue-on-error: true
 
     - name: Lưu trữ Artifacts
