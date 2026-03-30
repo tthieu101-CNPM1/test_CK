@@ -1,4 +1,4 @@
-name: OWASP ZAP Security CI
+name: OWASP ZAP Full Security CI
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
 
     - name: Khởi chạy OWASP Juice Shop
       run: docker run --rm -d -p 3000:3000 bkimminich/juice-shop
-        
+
     - name: Xử lý thời gian chờ (Wait-for-it)
       run: |
         sleep 30
@@ -23,13 +23,15 @@ jobs:
     - name: Cấp quyền không gian làm việc
       run: chmod 777 $(pwd)
 
-    - name: Quét Baseline với tệp zap.conf
+    - name: Quét Full Scan (Active) và AJAX Spider với tệp zap.conf
       run: |
-        docker run --network host -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+        docker run --network host -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
         -t http://localhost:3000 \
         -r zap-report.html \
         -J zap-report.json \
-        -c zap.conf
+        -c zap.conf \
+        -j \
+        -m 2
 
     - name: Lưu trữ Artifacts
       if: always()
