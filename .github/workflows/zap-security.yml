@@ -1,0 +1,43 @@
+name: OWASP ZAP Security CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Khởi chạy OWASP Juice Shop
+      run: docker run --rm -d -p 3000:3000 bkimminich/juice-shop
+        
+    - name: Xử lý thời gian chờ (Wait-for-it)
+      run: |
+        sleep 30
+        curl -s --head --request GET http://localhost:3000 | grep "200 OK" > /dev/null
+
+    - name: Cấp quyền không gian làm việc
+      run: chmod 777 $(pwd)
+
+    - name: Quét Baseline và tạo tệp gen.conf
+      run: |
+        docker run --network host -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+        -t http://localhost:3000 \
+        -r zap-report.html \
+        -J zap-report.json \
+        -g gen.conf
+      continue-on-error: true
+
+    - name: Lưu trữ Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: zap-reports-and-conf
+        path: |
+          zap-report.html
+          zap-report.json
+          gen.conf
