@@ -30,7 +30,7 @@ jobs:
         -r zap-report.html \
         -J zap-report.json \
         -c zap.conf
-      continue-on-error: true
+     
 
     - name: Lưu trữ Artifacts
       if: always()
