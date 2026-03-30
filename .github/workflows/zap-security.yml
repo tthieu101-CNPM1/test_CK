@@ -30,7 +30,6 @@ jobs:
         -r zap-report.html \
         -J zap-report.json \
         -c zap.conf
-     
 
     - name: Lưu trữ Artifacts
       if: always()
@@ -40,4 +39,4 @@ jobs:
         path: |
           zap-report.html
           zap-report.json
-          gen.conf
+          zap.conf
