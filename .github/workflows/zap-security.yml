@@ -17,20 +17,26 @@ jobs:
 
     - name: Xử lý thời gian chờ (Wait-for-it)
       run: |
-        sleep 30
-        curl -s --head --request GET http://localhost:3000 | grep "200 OK" > /dev/null
+        echo "Đợi ứng dụng khởi động..."
+        sleep 40
+        curl -s --head http://localhost:3000
 
     - name: Cấp quyền không gian làm việc
-      run: chmod 777 $(pwd)
+      run: chmod -R 777 $(pwd)
 
-    - name: Quét Full Scan (Active) và AJAX Spider với tệp zap.conf
+    # ⭐ QUAN TRỌNG: thêm debug để thấy rõ log AJAX Spider
+    - name: Quét Full Scan (Active) + AJAX Spider
       run: |
-        docker run --network host -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
+        docker run --network host \
+        -v $(pwd):/zap/wrk/:rw \
+        -t ghcr.io/zaproxy/zaproxy:stable \
+        zap-full-scan.py \
         -t http://localhost:3000 \
         -r zap-report.html \
         -J zap-report.json \
         -c zap.conf \
         -j \
+        -d \
         -m 2
 
     - name: Lưu trữ Artifacts
